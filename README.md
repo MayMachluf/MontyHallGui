@@ -12,8 +12,8 @@ Optimized for Windows PC only.
 ## Credits
 ❤️ Made by
 
-@yuvalfitusi
+[@YuvalFitusi](https://github.com/YuvalFitusi)
 
-@maymachluf
+[@MayMachluf](https://github.com/MayMachluf)
 
-@liav22
+[@liav22](https://github.com/liav22)
