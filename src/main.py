@@ -6,15 +6,17 @@ import time
 
 num_doors = 0
 game_stage = 0
+result = {}
+games = 0
 
 
 def show_msg():
     n = doorNumberEntry.get()
     if n.isnumeric():
         if int(n) in range(3, 10):
-            label.pack_forget()
-            doorNumberEntry.pack_forget()
-            btn.pack_forget()
+            label.destroy()
+            doorNumberEntry.destroy()
+            btn.destroy()
             func(int(n))
             return
 
@@ -31,8 +33,8 @@ def func(n: int):
 
     if n == 3 or n == 4:
         for i in range(n):
-            print(i)
-            door1 = tk.Button(image=doorClosedImage, command=lambda i=i: door_pick(i))
+            door1 = tk.Button(image=doorClosedImage, text=str(i), font=('Helvetica 15 bold'), compound=tk.LEFT,
+                              command=lambda x=i: door_pick(x))
             door1.image = doorClosedImage
             door1.grid(row=2, column=i + 2)
             doorList[door1] = "goat"
@@ -41,7 +43,8 @@ def func(n: int):
         k = 0
         j = 0
         for i in range(n):
-            door1 = tk.Button(image=doorClosedImage, command=lambda i=i: door_pick(i))
+            door1 = tk.Button(image=doorClosedImage, text=str(i), font=('Helvetica 15 bold'), compound=tk.LEFT,
+                              command=lambda x=i: door_pick(x))
             door1.image = doorClosedImage
             doorList[door1] = "goat"
 
@@ -57,7 +60,8 @@ def func(n: int):
         k = 0
         j = 0
         for i in range(n):
-            door1 = tk.Button(image=doorClosedImage, command=lambda i=i: door_pick(i))
+            door1 = tk.Button(image=doorClosedImage, text=str(i), font=('Helvetica 15 bold'), compound=tk.LEFT,
+                              command=lambda x=i: door_pick(x))
             door1.image = doorClosedImage
             doorList[door1] = "goat"
 
@@ -90,7 +94,7 @@ def door_pick(i):
 
                 x = len(doorList)
                 lbl.grid(row=4, column=int(x / 2))
-                yesBtn.grid(row=5, columnspan=int(x / 2 - 1))
+                yesBtn.grid(row=5, columnspan=int(x / 2))
                 noBtn.grid(row=5, columnspan=int(x / 2 + 1))
 
                 return
@@ -105,13 +109,33 @@ def door_pick(i):
                     change_pic(key)
 
         game_stage = 2
-        # time.sleep(3)
-        # for key in doorList.keys():
-        #     key.destroy()
+        if doorList.get(key) == 'goat':
+            result[games] = False
+        else:
+            result[games] = True
+
+        run_again()
+
         return
 
     if game_stage == 2:
         return
+
+
+def run_again():
+    againBtn = tk.Button(text="Would you like to run again?")
+    againBtn['command'] = lambda: reset(againBtn)
+    againBtn.grid(row=3, columnspan=1)
+
+
+def reset(againBtn):
+    global game_stage
+    game_stage = 0
+    againBtn.destroy()
+    for x in doorList:
+        x.destroy()
+
+    game_start()
 
 
 def yes_btn(*args):
@@ -146,14 +170,19 @@ def change_pic(labelname):
 
 
 window = tk.Tk()
-label = tk.Label(text="Please enter number of doors here")
-label.pack()
+frame = tk.Frame()
+doorNumberEntry = tk.Entry(frame)
+label = tk.Label(frame, text="Please enter number of doors here")
+btn = tk.Button(frame, text="Confirm", command=show_msg)
 
-doorNumberEntry = tk.Entry()
-doorNumberEntry.pack()
 
-btn = tk.Button(text="Confirm", command=show_msg)
-btn.pack()
+def game_start():
+    label.grid(rowspan=1, columnspan=1)
+    doorNumberEntry.grid(rowspan=1, columnspan=2)
+    btn.grid(rowspan=2, columnspan=1)
+
+
+game_start()
 
 window.geometry("1100x700")
 window.mainloop()
