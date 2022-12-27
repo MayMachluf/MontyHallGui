@@ -188,9 +188,11 @@ def change_picture(labelname):
 
 window = tk.Tk()
 doorNumberEntry = tk.Entry(window)
-img = ImageTk.PhotoImage(Image.open("images/background.jpg"))  # PIL solution
+
+img = ImageTk.PhotoImage(Image.open("images/background.jpg"))
 label1 = tk.Label(window, image=img)
 label1.place(x=0, y=0)
+
 
 def start_game():
     refresh_score()
@@ -248,6 +250,7 @@ def reset_score():
     refresh_score()
     restart()
 
+
 frame = tk.Frame()
 doorFrame = tk.Frame()
 graphFrame = tk.Frame()
@@ -268,8 +271,6 @@ btnStats.pack(side=tk.LEFT, padx=5, pady=10, expand=1)
 
 statsLbl = tk.Label(window, text=f"Score: {score}")
 statsLbl.pack(side=tk.BOTTOM, pady=10)
-
-
 
 start_game()
 
