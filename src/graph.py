@@ -2,8 +2,8 @@ import mhProblemGp
 import re
 
 
-def run_mh(count):
-    mhProblemGp.run_mh(count, 100000, False)
+def mh_helper(games, count):
+    mhProblemGp.run_mh(count, games, False)
 
     with open("mhResultsGp.txt", 'r', encoding='utf-8') as f:
         text = f.read()
