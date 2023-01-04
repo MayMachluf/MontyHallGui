@@ -7,7 +7,7 @@ Made with Python 3.9 and Tkinter.
 # Installation
 Build main.py.
 
-Optimized for Windows PC only.
+Optimized and tested on Windows and MacOS.
 
 ## Credits
 ❤️ Made by
