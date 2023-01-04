@@ -5,7 +5,7 @@ Monty Hall problem visual demonstration with interactable GUI.
 Made with Python 3.9 and Tkinter.
 
 # Installation
-Build main.py.
+Run `__main__.py` in `/src` folder.
 
 Optimized and tested on Windows and MacOS.
 
