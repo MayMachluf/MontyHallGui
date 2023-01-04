@@ -14,7 +14,14 @@ game_count = 0
 previous_door_pick = 0
 
 
-def check_input(simulation=False):
+def check_input(simulation=False) -> None:
+    """
+    Check the use input in one of the input boxes
+
+    Parameters
+    ----------
+    simulation (optional): differentiate between simulation and manual play
+    """
     global door_amount
 
     if simulation:
@@ -56,7 +63,15 @@ def check_input(simulation=False):
         start_game()
 
 
-def start_game(simulation=False, games=10000):
+def start_game(simulation=False, games=10000) -> None:
+    """
+    Start the game
+
+    Parameters
+    ----------
+    simulation (optional): toggle for simulation
+    games (optional): games amount for simulation
+    """
     gameDoorsEntry.pack_forget()
     gameDoorsLbl.pack_forget()
     gameConfirmBtn.pack_forget()
@@ -79,6 +94,9 @@ def start_game(simulation=False, games=10000):
 
 
 def show_graph(res):
+    """
+    Show graph for simulation.
+    """
     inputFrame.pack_forget()
     doorFrame.pack_forget()
     gameTextFrame.pack_forget()
@@ -129,6 +147,9 @@ def show_graph(res):
 
 
 def show_doors():
+    """
+    Display the doors on screen for manual play
+    """
     door_closed_image = ImageTk.PhotoImage(Image.open("images/door_closed.png"))
 
     for i in range(door_amount):
@@ -153,14 +174,18 @@ def show_doors():
 
 
 def door_pick(door):
+    """
+    Main game loop. Whenever the player chooses a door, this is being ran.
+
+    Parameters
+    ----------
+    door: the door number that the player picked.
+    """
     global game_stage, game_count, previous_door_pick
     pick = list(door_list.keys())[door]
     change_pick_picutre(doorTitlesFrame.winfo_children()[door], 'player')
 
     if game_stage == 0:
-
-        # addTextToDoor(door, '   Your Choice    ')
-
         gameTextFrame.pack()
         tk.Label(gameTextFrame,
                  text="The presenter has revealed one of the goats for you, would you like to change your pick?") \
@@ -206,13 +231,14 @@ def door_pick(door):
         return
 
 
-def addTextToDoor(doorNum, text):
-    for x in range(len(doorTitlesFrame.winfo_children())):
-        if x == doorNum:
-            doorTitlesFrame.winfo_children()[x]['text'] = text
-
-
 def change_door_picture(labelname):
+    """
+    Reveal what's behind a specific door
+
+    Parameters
+    ----------
+    labelname: the door object
+    """
     if door_list.get(labelname) == 'goat':
         photo1 = ImageTk.PhotoImage(Image.open("images/door_goat.png"))
         labelname.configure(image=photo1)
@@ -225,6 +251,14 @@ def change_door_picture(labelname):
 
 
 def change_pick_picutre(lbl, string):
+    """
+    Display on screen the pick (whether it's a host pick or player pick)
+
+    Parameters
+    ----------
+    lbl: the image object
+    string: host / player
+    """
     if string == 'host':
         photo1 = ImageTk.PhotoImage(Image.open("images/host_pick.png"))
         lbl.configure(image=photo1)
@@ -237,6 +271,13 @@ def change_pick_picutre(lbl, string):
 
 
 def start(skip_check=False):
+    """
+    Main start function for the program
+
+    Parameters
+    ----------
+    skip_check (optional): If the player pressed the "try again" button
+    """
     refresh_score()
     inputFrame.pack()
     simulationFrame.pack()
@@ -260,6 +301,13 @@ def start(skip_check=False):
 
 
 def restart(skip_check=False):
+    """
+    Restart game
+
+    Parameters
+    ----------
+    skip_check (optional): for the "try again" option
+    """
     global game_stage, door_list, door_amount
     door_list = {}
     game_stage = 0
@@ -278,6 +326,9 @@ def restart(skip_check=False):
 
 
 def refresh_score():
+    """
+    Display the updated score on screen
+    """
     if score['win'] == 0 and score['loss'] == 0:
         statsLbl['text'] = f"No games played yet."
 
@@ -286,6 +337,9 @@ def refresh_score():
 
 
 def reset_score():
+    """
+    Reset score back to 0.
+    """
     global score, door_amount
     score = {'win': 0, 'loss': 0}
     door_amount = 0
@@ -294,6 +348,9 @@ def reset_score():
 
 
 def show_statistics():
+    """
+    Show stats on screen
+    """
     f = Figure()
     ax = f.add_subplot(111)
 
@@ -315,6 +372,9 @@ def show_statistics():
 
 
 def switch_main_to_secondary():
+    """
+    Switch to stats screen
+    """
     if mainFrame.winfo_ismapped():
         mainFrame.pack_forget()
         secondaryFrame.pack()
@@ -374,6 +434,9 @@ statsLbl.pack(side=tk.BOTTOM, pady=10)
 
 
 def main():
+    """
+    Main program loop
+    """
     start()
 
     window.geometry("1100x850")
