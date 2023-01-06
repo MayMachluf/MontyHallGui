@@ -135,7 +135,7 @@ def show_graph(res):
     resFrame.pack(side=tk.BOTTOM)
 
     img = Image.open("images/equation.png")
-    img = img.resize((95, 60), Image.ANTIALIAS)
+    img = img.resize((75, 40), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
     eq = tk.Label(resFrame, image=img)
     eq.image = img
@@ -439,5 +439,5 @@ def main():
     """
     start()
 
-    window.geometry("1100x850")
+    window.geometry("1100x750")
     window.mainloop()
