@@ -12,6 +12,7 @@ game_stage = 0
 score = {'win': 0, 'loss': 0}
 game_count = 0
 previous_door_pick = 0
+host_revealed = 0
 
 
 def check_input(simulation=False) -> None:
@@ -135,7 +136,7 @@ def show_graph(res):
     resFrame.pack(side=tk.BOTTOM)
 
     img = Image.open("images/equation.png")
-    img = img.resize((75, 40), Image.ANTIALIAS)
+    img = img.resize((75, 50), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
     eq = tk.Label(resFrame, image=img)
     eq.image = img
@@ -181,8 +182,12 @@ def door_pick(door):
     ----------
     door: the door number that the player picked.
     """
-    global game_stage, game_count, previous_door_pick
+    global game_stage, game_count, previous_door_pick, host_revealed
     pick = list(door_list.keys())[door]
+
+    if pick == host_revealed:
+        return
+
     change_pick_picutre(doorTitlesFrame.winfo_children()[door], 'player')
 
     if game_stage == 0:
@@ -197,6 +202,7 @@ def door_pick(door):
             if key != pick and val != 'car':
                 break
 
+        host_revealed = key
         change_door_picture(key)
         game_stage = 1
         change_pick_picutre(doorTitlesFrame.winfo_children()[list(door_list.keys()).index(key)], 'host')
@@ -206,22 +212,31 @@ def door_pick(door):
             x.pack_forget()
 
         change_door_picture(pick)
+        car = None
         if door_list.get(pick) == 'goat':
             for key, value in door_list.items():
                 if value == 'car':
                     change_door_picture(key)
+                    car = key
 
             tk.Label(gameTextFrame, text="You were wrong!").pack(pady=5)
             score['loss'] = score['loss'] + 1
             game_count += 1
 
         else:
+            car = pick
             tk.Label(gameTextFrame, text="You were right!").pack(pady=5)
             score['win'] = score['win'] + 1
             game_count += 1
 
         if previous_door_pick != door:
-            tk.Label(gameTextFrame, text="Your choice change influenced your result.").pack(pady=5)
+            change_pick_picutre(doorTitlesFrame.winfo_children()[previous_door_pick], 'original')
+
+        if previous_door_pick == list(door_list.keys()).index(car):
+            tk.Label(gameTextFrame, text="You lost because of your choice change...").pack(pady=5)
+
+        if door == list(door_list.keys()).index(car):
+            tk.Label(gameTextFrame, text="You won because of your choice change!").pack(pady=5)
 
         againButton = tk.Button(gameTextFrame, text="Try again", command=lambda: restart(True))
         againButton.pack(pady=5)
@@ -250,6 +265,7 @@ def change_door_picture(labelname):
         labelname.photo = photo1
 
 
+
 def change_pick_picutre(lbl, string):
     """
     Display on screen the pick (whether it's a host pick or player pick)
@@ -266,6 +282,11 @@ def change_pick_picutre(lbl, string):
 
     elif string == 'player':
         photo1 = ImageTk.PhotoImage(Image.open("images/your_pick.png"))
+        lbl.configure(image=photo1)
+        lbl.image = photo1
+
+    elif string == 'original':
+        photo1 = ImageTk.PhotoImage(Image.open("images/your_original_pick.png"))
         lbl.configure(image=photo1)
         lbl.image = photo1
 
@@ -360,6 +381,7 @@ def show_statistics():
     width = 0.5
 
     ax.bar(ind, data, width)
+    ax.set_ylabel('Games Played')
 
     tk.Label(secondaryFrame, text="Statistics", font=('Arial', 24)).pack(pady=10)
 
