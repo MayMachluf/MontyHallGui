@@ -135,7 +135,7 @@ def show_graph(res):
     resFrame = tk.Frame(graphFrame)
     resFrame.pack(side=tk.BOTTOM)
 
-    img = Image.open("images/equation.png")
+    img = Image.open("assets/equation.png")
     img = img.resize((75, 50), Image.ANTIALIAS)
     img = ImageTk.PhotoImage(img)
     eq = tk.Label(resFrame, image=img)
@@ -151,7 +151,7 @@ def show_doors():
     """
     Display the doors on screen for manual play
     """
-    door_closed_image = ImageTk.PhotoImage(Image.open("images/door_closed.png"))
+    door_closed_image = ImageTk.PhotoImage(Image.open("assets/door_closed.png"))
 
     for i in range(door_amount):
         door = tk.Button(doorFrame,
@@ -165,7 +165,7 @@ def show_doors():
         door_list[door] = "goat"
 
     for i in range(door_amount):
-        img = ImageTk.PhotoImage(Image.open("images/blank.png"))
+        img = ImageTk.PhotoImage(Image.open("assets/blank.png"))
         lbl = tk.Label(doorTitlesFrame, image=img)
         lbl.image = img
         lbl.pack(side=tk.LEFT, padx=5, expand=1)
@@ -235,8 +235,11 @@ def door_pick(door):
         if previous_door_pick == list(door_list.keys()).index(car):
             tk.Label(gameTextFrame, text="You lost because of your choice change...").pack(pady=5)
 
-        if door == list(door_list.keys()).index(car):
+        elif door == list(door_list.keys()).index(car):
             tk.Label(gameTextFrame, text="You won because of your choice change!").pack(pady=5)
+
+        elif previous_door_pick != door:
+            tk.Label(gameTextFrame, text="Your choice change had no influence.").pack(pady=5)
 
         againButton = tk.Button(gameTextFrame, text="Try again", command=lambda: restart(True))
         againButton.pack(pady=5)
@@ -255,12 +258,12 @@ def change_door_picture(labelname):
     labelname: the door object
     """
     if door_list.get(labelname) == 'goat':
-        photo1 = ImageTk.PhotoImage(Image.open("images/door_goat.png"))
+        photo1 = ImageTk.PhotoImage(Image.open("assets/door_goat.png"))
         labelname.configure(image=photo1)
         labelname.photo = photo1
 
     else:
-        photo1 = ImageTk.PhotoImage(Image.open("images/door_car.png"))
+        photo1 = ImageTk.PhotoImage(Image.open("assets/door_car.png"))
         labelname.configure(image=photo1)
         labelname.photo = photo1
 
@@ -276,17 +279,17 @@ def change_pick_picutre(lbl, string):
     string: host / player
     """
     if string == 'host':
-        photo1 = ImageTk.PhotoImage(Image.open("images/host_pick.png"))
+        photo1 = ImageTk.PhotoImage(Image.open("assets/host_pick.png"))
         lbl.configure(image=photo1)
         lbl.image = photo1
 
     elif string == 'player':
-        photo1 = ImageTk.PhotoImage(Image.open("images/your_pick.png"))
+        photo1 = ImageTk.PhotoImage(Image.open("assets/your_pick.png"))
         lbl.configure(image=photo1)
         lbl.image = photo1
 
     elif string == 'original':
-        photo1 = ImageTk.PhotoImage(Image.open("images/your_original_pick.png"))
+        photo1 = ImageTk.PhotoImage(Image.open("assets/your_original_pick.png"))
         lbl.configure(image=photo1)
         lbl.image = photo1
 
