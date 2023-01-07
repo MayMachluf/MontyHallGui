@@ -9,29 +9,41 @@ from matplotlib.figure import Figure
 door_amount = 0
 door_list = {}
 game_stage = 0
-score = {'win': 0, 'loss': 0}
+score = {'wins because of change': 0,
+         'wins without change': 0,
+         'losses due to change': 0,
+         'losses without influence': 0,
+         'losses without change': 0}
 game_count = 0
 previous_door_pick = 0
 host_revealed = 0
+warning = None
 
 
 def check_input(simulation=False) -> None:
     """
     Check the use input in one of the input boxes
 
-    Parameters
-    ----------
+    Parameters:
     simulation (optional): differentiate between simulation and manual play
+
+    Returns:
+    None
     """
-    global door_amount
+    global door_amount, warning
+
+    if warning is not None:
+        warning.pack_forget()
 
     if simulation:
         if not simulationDoorsEntry.get().isnumeric():
-            tk.messagebox.showerror("error", "please enter number in digits")
+            warning = tk.Label(simulationFrame, text="please enter number in digits", fg='#f00')
+            warning.pack()
             return
 
         if int(simulationDoorsEntry.get()) < 3 or int(simulationDoorsEntry.get()) > 1000:
-            tk.messagebox.showerror("error", "your number should be in range 3-1000")
+            warning = tk.Label(inputFrame, text="your number should be in range 3-1000", fg='#f00')
+            warning.pack()
             return
 
         door_amount = int(simulationDoorsEntry.get())
@@ -44,23 +56,23 @@ def check_input(simulation=False) -> None:
     else:
 
         if not gameDoorsEntry.get().isnumeric():
-            tk.messagebox.showerror("error", "please enter number in digits")
+            warning = tk.Label(inputFrame, text="please enter number in digits", fg='#f00')
+            warning.pack()
             return
 
         if int(gameDoorsEntry.get()) < 3 or int(gameDoorsEntry.get()) > 6:
-            tk.messagebox.showerror("error", "your number should be in range 3-6")
+            warning = tk.Label(inputFrame, text="your number should be in range 3-6", fg='#f00')
+            warning.pack()
             return
 
         if door_amount != 0 and (door_amount != int(gameDoorsEntry.get())):
-            answer = tk.messagebox.askyesno(title="Warning",
-                                            message="If you change your amount of doors your score will reset.\n"
-                                                    "Do you wish to continue?")
-            if not answer:
-                return
-            else:
-                reset_score()
+            reset_score()
 
         door_amount = int(gameDoorsEntry.get())
+
+        if warning is not None:
+            warning.pack_forget()
+
         start_game()
 
 
@@ -128,8 +140,10 @@ def show_graph(res):
     tk.Label(graphFrame, text=f"(Wins / Losses) according to this simulation = {round(calc, 3)}").pack(padx=5, pady=5)
     tk.Label(graphFrame, text="General case: ").pack(padx=5, pady=5)
 
-    score['win'] = score['win'] + int(res[2])
-    score['loss'] = score['loss'] + (int(res[1]) - int(res[2]))
+    score['wins because of change'] = score['wins because of change'] + int(res[2])
+    score['losses due to change'] = score['losses due to change'] + int(res[3])
+    score['losses without influence'] = score['losses without influence'] + int(res[4])
+
     refresh_score()
 
     resFrame = tk.Frame(graphFrame)
@@ -220,26 +234,37 @@ def door_pick(door):
                     car = key
 
             tk.Label(gameTextFrame, text="You were wrong!").pack(pady=5)
-            score['loss'] = score['loss'] + 1
             game_count += 1
 
         else:
             car = pick
             tk.Label(gameTextFrame, text="You were right!").pack(pady=5)
-            score['win'] = score['win'] + 1
             game_count += 1
 
         if previous_door_pick != door:
             change_pick_picutre(doorTitlesFrame.winfo_children()[previous_door_pick], 'original')
 
-        if previous_door_pick == list(door_list.keys()).index(car):
-            tk.Label(gameTextFrame, text="You lost because of your choice change...").pack(pady=5)
+        if previous_door_pick != door:
+            if car == pick:
+                tk.Label(gameTextFrame, text="You won because of your choice change!").pack(pady=5)
+                score['wins because of change'] += 1
 
-        elif door == list(door_list.keys()).index(car):
-            tk.Label(gameTextFrame, text="You won because of your choice change!").pack(pady=5)
+            elif previous_door_pick == list(door_list.keys()).index(car):
+                tk.Label(gameTextFrame, text="You lost because of your choice change...").pack(pady=5)
+                score['losses due to change'] += 1
 
-        elif previous_door_pick != door:
-            tk.Label(gameTextFrame, text="Your choice change had no influence.").pack(pady=5)
+            else:
+                tk.Label(gameTextFrame, text="Your choice change had no influence...").pack(pady=5)
+                score['losses without influence'] += 1
+
+        else:
+            if car == pick:
+                tk.Label(gameTextFrame, text="You won because you didn't change your choice!").pack(pady=5)
+                score['wins without change'] += 1
+
+            else:
+                tk.Label(gameTextFrame, text="You lost without changing your choice...").pack(pady=5)
+                score['losses without influence'] += 1
 
         againButton = tk.Button(gameTextFrame, text="Try again", command=lambda: restart(True))
         againButton.pack(pady=5)
@@ -266,7 +291,6 @@ def change_door_picture(labelname):
         photo1 = ImageTk.PhotoImage(Image.open("assets/door_car.png"))
         labelname.configure(image=photo1)
         labelname.photo = photo1
-
 
 
 def change_pick_picutre(lbl, string):
@@ -353,11 +377,15 @@ def refresh_score():
     """
     Display the updated score on screen
     """
-    if score['win'] == 0 and score['loss'] == 0:
+    if sum(list(score.values())) == 0:
         statsLbl['text'] = f"No games played yet."
 
     else:
-        statsLbl['text'] = f"Score: {score['win']:,} Wins | {score['loss']:,} Losses"
+        text = ""
+        for key, value in score.items():
+            text += f"{key}: {value}, "
+
+        statsLbl['text'] = f"{text[0:-2]}"
 
 
 def reset_score():
@@ -365,7 +393,11 @@ def reset_score():
     Reset score back to 0.
     """
     global score, door_amount
-    score = {'win': 0, 'loss': 0}
+    score = {'wins because of change': 0,
+             'wins without change': 0,
+             'losses due to change': 0,
+             'losses without influence': 0,
+             'losses without change': 0}
     door_amount = 0
     refresh_score()
     restart()
@@ -375,12 +407,17 @@ def show_statistics():
     """
     Show stats on screen
     """
-    f = Figure()
+    f = Figure(figsize=(12, 4))
     ax = f.add_subplot(111)
 
-    data = (score['win'], score['loss'])
+    data = (score['wins because of change'],
+            score['wins without change'],
+            score['losses due to change'],
+            score['losses without change'],
+            score['losses without influence'])
 
-    ind = ('wins', 'losses')
+    ind = ('wins because of change', 'wins without change', 'losses due to change', 'losses without change',
+           'losses without influence')
     width = 0.5
 
     ax.bar(ind, data, width)
@@ -417,6 +454,7 @@ def switch_main_to_secondary():
 
 
 window = tk.Tk()
+window.attributes("-topmost", True)
 doorNumberEntry = tk.Entry(window)
 
 mainFrame = tk.Frame()
@@ -454,7 +492,7 @@ resetScore.pack(side=tk.LEFT, padx=5, pady=10, expand=1)
 btnStats = tk.Button(bottomFrame, text="Show Statistics", command=switch_main_to_secondary)
 btnStats.pack(side=tk.LEFT, padx=5, pady=10, expand=1)
 
-statsLbl = tk.Label(text=f"Score: {score}", font=('Arial', 22))
+statsLbl = tk.Label(font=('Arial', 15))
 statsLbl.pack(side=tk.BOTTOM, pady=10)
 
 
