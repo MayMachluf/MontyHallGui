@@ -262,6 +262,7 @@ def door_pick(door):
 
         if previous_door_pick != door:
             change_pick_picutre(doorTitlesFrame.winfo_children()[previous_door_pick], 'original')
+            change_pick_picutre(doorTitlesFrame.winfo_children()[door], 'new')
 
         if previous_door_pick != door:
             if car == pick:
@@ -339,6 +340,11 @@ def change_pick_picutre(lbl, string):
 
     elif string == 'car':
         photo1 = ImageTk.PhotoImage(Image.open("assets/car.png"))
+        lbl.configure(image=photo1)
+        lbl.image = photo1
+
+    elif string == 'new':
+        photo1 = ImageTk.PhotoImage(Image.open("assets/your_new_pick.png"))
         lbl.configure(image=photo1)
         lbl.image = photo1
 
@@ -481,7 +487,7 @@ def show_statistics():
     tk.Label(secondaryFrame,
              text=f"n = {door_amount}").pack(pady=5, padx=5)
 
-    if sum(score.values()) != 0:
+    if score['wins because of change'] != 0 and score['losses due to change'] != 0:
         calc = score['wins because of change'] / score['losses due to change']
 
         tk.Label(secondaryFrame, text=f"The ratio between losses and wins due to change of door choice: "
@@ -564,7 +570,7 @@ resetScore.pack(side=tk.LEFT, padx=5, pady=10, expand=1)
 btnStats = tk.Button(bottomFrame, text="Show Statistics", command=switch_main_to_secondary)
 btnStats.pack(side=tk.LEFT, padx=5, pady=10, expand=1)
 
-statsLbl = tk.Label(font=('Arial', 15))
+statsLbl = tk.Label(font=('Arial', 12))
 statsLbl.pack(side=tk.BOTTOM, pady=10)
 
 
