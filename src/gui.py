@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 from PIL import ImageTk, Image
 from mhProblemGp import *
 from graph import *
@@ -24,11 +23,11 @@ def check_input(simulation=False) -> None:
     """
     Check the use input in one of the input boxes
 
-    Parameters:
-    simulation (optional): differentiate between simulation and manual play
+    Params:
+        bool: simulation (optional) - differentiate between simulation and manual play
 
     Returns:
-    None
+        None
     """
     global door_amount, warning
 
@@ -80,10 +79,12 @@ def start_game(simulation=False, games=10000) -> None:
     """
     Start the game
 
-    Parameters
-    ----------
-    simulation (optional): toggle for simulation
-    games (optional): games amount for simulation
+    Parameters:
+        bool: simulation (optional) - toggle for simulation
+        int: games (optional) - games amount for simulation
+
+    Returns:
+        None
     """
     gameDoorsEntry.pack_forget()
     gameDoorsLbl.pack_forget()
@@ -109,6 +110,12 @@ def start_game(simulation=False, games=10000) -> None:
 def show_graph(res):
     """
     Show graph for simulation.
+
+    Parameters:
+        res: list of results from algorithm code provided
+
+    Returns:
+        None
     """
     inputFrame.pack_forget()
     doorFrame.pack_forget()
@@ -164,6 +171,12 @@ def show_graph(res):
 def show_doors():
     """
     Display the doors on screen for manual play
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
     door_closed_image = ImageTk.PhotoImage(Image.open("assets/door_closed.png"))
 
@@ -192,12 +205,17 @@ def door_pick(door):
     """
     Main game loop. Whenever the player chooses a door, this is being ran.
 
-    Parameters
-    ----------
-    door: the door number that the player picked.
+    Parameters:
+        door: the door number that the player picked.
+
+    Returns:
+        None
     """
     global game_stage, game_count, previous_door_pick, host_revealed
     pick = list(door_list.keys())[door]
+
+    if game_stage == 3:
+        return
 
     if pick == host_revealed:
         return
@@ -233,6 +251,7 @@ def door_pick(door):
                     change_door_picture(key)
                     car = key
 
+            change_pick_picutre(doorTitlesFrame.winfo_children()[list(door_list.keys()).index(car)], 'car')
             tk.Label(gameTextFrame, text="You were wrong!").pack(pady=5)
             game_count += 1
 
@@ -264,23 +283,22 @@ def door_pick(door):
 
             else:
                 tk.Label(gameTextFrame, text="You lost without changing your choice...").pack(pady=5)
-                score['losses without influence'] += 1
+                score['losses without change'] += 1
 
         againButton = tk.Button(gameTextFrame, text="Try again", command=lambda: restart(True))
         againButton.pack(pady=5)
         game_stage = 3
-
-    elif game_stage == 3:
-        return
 
 
 def change_door_picture(labelname):
     """
     Reveal what's behind a specific door
 
-    Parameters
-    ----------
-    labelname: the door object
+    Parameters:
+        labelname: the door object
+
+    Returns:
+        None
     """
     if door_list.get(labelname) == 'goat':
         photo1 = ImageTk.PhotoImage(Image.open("assets/door_goat.png"))
@@ -297,10 +315,12 @@ def change_pick_picutre(lbl, string):
     """
     Display on screen the pick (whether it's a host pick or player pick)
 
-    Parameters
-    ----------
-    lbl: the image object
-    string: host / player
+    Parameters:
+        lbl: the image object
+        string: host / player
+
+    Returns:
+        None
     """
     if string == 'host':
         photo1 = ImageTk.PhotoImage(Image.open("assets/host_pick.png"))
@@ -317,14 +337,21 @@ def change_pick_picutre(lbl, string):
         lbl.configure(image=photo1)
         lbl.image = photo1
 
+    elif string == 'car':
+        photo1 = ImageTk.PhotoImage(Image.open("assets/car.png"))
+        lbl.configure(image=photo1)
+        lbl.image = photo1
+
 
 def start(skip_check=False):
     """
     Main start function for the program
 
-    Parameters
-    ----------
-    skip_check (optional): If the player pressed the "try again" button
+    Parameters:
+        skip_check (optional): If the player pressed the "try again" button
+
+    Returns:
+        None
     """
     refresh_score()
     inputFrame.pack()
@@ -352,9 +379,11 @@ def restart(skip_check=False):
     """
     Restart game
 
-    Parameters
-    ----------
-    skip_check (optional): for the "try again" option
+    Parameters:
+        skip_check (optional): for the "try again" option
+
+    Returns:
+        None
     """
     global game_stage, door_list, door_amount
     door_list = {}
@@ -376,6 +405,12 @@ def restart(skip_check=False):
 def refresh_score():
     """
     Display the updated score on screen
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
     if sum(list(score.values())) == 0:
         statsLbl['text'] = f"No games played yet."
@@ -391,6 +426,12 @@ def refresh_score():
 def reset_score():
     """
     Reset score back to 0.
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
     global score, door_amount
     score = {'wins because of change': 0,
@@ -406,7 +447,15 @@ def reset_score():
 def show_statistics():
     """
     Show stats on screen
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
+    global door_amount, score
+
     f = Figure(figsize=(12, 4))
     ax = f.add_subplot(111)
 
@@ -432,10 +481,33 @@ def show_statistics():
     tk.Label(secondaryFrame,
              text=f"n = {door_amount}").pack(pady=5, padx=5)
 
+    if sum(score.values()) != 0:
+        calc = score['wins because of change'] / score['losses due to change']
+
+        tk.Label(secondaryFrame, text=f"The ratio between losses and wins due to change of door choice: "
+                                      f"{round(calc, 3)}").pack(pady=5, padx=5)
+
+    img = Image.open("assets/equation.png")
+    img = img.resize((75, 50), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+    eq = tk.Label(secondaryFrame, image=img)
+    eq.image = img
+    eq.pack(pady=5, side=tk.LEFT, expand=1)
+
+    tk.Label(secondaryFrame,
+             text=f" = {round(((door_amount - 1) / (door_amount - 2)), 3)}") \
+        .pack(pady=5, side=tk.LEFT, expand=1)
+
 
 def switch_main_to_secondary():
     """
     Switch to stats screen
+
+    Parameters:
+        None
+
+    Returns:
+        None
     """
     if mainFrame.winfo_ismapped():
         mainFrame.pack_forget()
